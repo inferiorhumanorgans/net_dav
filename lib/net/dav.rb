@@ -139,6 +139,8 @@ module Net #:nodoc:
             Net::HTTP::Lock.new(path)
           when :unlock
             Net::HTTP::Unlock.new(path)
+          when :options
+            Net::HTTP::Options.new(path)
           else
             raise "unkown verb #{verb}"
           end
@@ -404,7 +406,16 @@ module Net #:nodoc:
     def headers(headers)
       @headers = headers
     end
-    
+
+    def options(path, *opts)
+      headers = {'Depth' => '1'}
+      if opts[0].is_a? Hash
+        headers['Depth'] = opts[:depth] if opts.include? :depth
+      end
+      @handler.request(:options, path, nil, headers.merge(@headers))
+    end
+
+
     # Perform a PROPFIND request
     #
     # Example:
